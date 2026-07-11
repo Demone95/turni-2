@@ -1,0 +1,17 @@
+{
+  "name": "I miei turni - 2 turni",
+  "short_name": "Turni 2",
+  "start_url": "./?app=turni2",
+  "display": "standalone",
+  "background_color": "#07101e",
+  "theme_color": "#0b1220",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "turni-2"
+}
