@@ -1,11 +1,13 @@
-const REF=new Date(2026,6,6),cycle=[2,1];let baseShift=Number(localStorage.getItem('baseShift2'))||0;
+const cycle=[1,2];
+let baseShift=Number(localStorage.getItem('baseShift2'))||0;
+let savedRef=localStorage.getItem('baseWeek2');
 const picker=document.getElementById('datePicker'),cal=document.getElementById('calendar'),setup=document.getElementById('setup');let view=new Date();view.setDate(1);
 const pad=n=>String(n).padStart(2,'0'),iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 function monday(d){let x=new Date(d.getFullYear(),d.getMonth(),d.getDate()),q=x.getDay();x.setDate(x.getDate()-(q===0?6:q-1));return x}
-function shift(d){if(d.getDay()===0)return 0;let w=Math.round((monday(d)-REF)/604800000),idx=cycle.indexOf(baseShift);return cycle[((idx+w)%2+2)%2]}
+function shift(d){if(d.getDay()===0)return 0;let ref=savedRef?new Date(savedRef+'T12:00:00'):monday(new Date()),w=Math.round((monday(d)-monday(ref))/604800000),idx=cycle.indexOf(baseShift);return cycle[((idx+w)%2+2)%2]}
 function show(d){picker.value=iso(d);let s=shift(d),b=document.getElementById('shiftBadge');b.className='badge '+(s?'shift'+s:'sunday');b.textContent=s?s+'°':'☕';document.getElementById('shiftTitle').textContent=s?`${s}° turno`:'Riposo';document.getElementById('shiftInfo').textContent=d.toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'});render()}
 function render(){cal.innerHTML='';document.getElementById('monthTitle').textContent=view.toLocaleDateString('it-IT',{month:'long',year:'numeric'});let f=(view.getDay()+6)%7,n=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();for(let i=0;i<f;i++){let e=document.createElement('span');e.className='day empty';cal.append(e)}for(let i=1;i<=n;i++){let d=new Date(view.getFullYear(),view.getMonth(),i),s=shift(d),b=document.createElement('button');b.className='day '+(s?'shift'+s:'sunday');if(iso(d)===picker.value)b.classList.add('selected');if(iso(d)===iso(new Date()))b.classList.add('today');b.innerHTML=`${i}<small>${s?s+'°':'R'}</small>`;b.onclick=()=>show(d);cal.append(b)}}
-document.querySelectorAll('[data-shift]').forEach(b=>b.onclick=()=>{baseShift=Number(b.dataset.shift);localStorage.setItem('baseShift2',baseShift);setup.classList.add('hidden');show(new Date())});
+document.querySelectorAll('[data-shift]').forEach(b=>b.onclick=()=>{baseShift=Number(b.dataset.shift);savedRef=iso(monday(new Date()));localStorage.setItem('baseShift2',baseShift);localStorage.setItem('baseWeek2',savedRef);setup.classList.add('hidden');view=new Date();view.setDate(1);show(new Date())});
 document.getElementById('settings').onclick=()=>setup.classList.remove('hidden');
 document.getElementById('prev').onclick=()=>{view.setMonth(view.getMonth()-1);render()};document.getElementById('next').onclick=()=>{view.setMonth(view.getMonth()+1);render()};
 picker.onchange=()=>{let [y,m,d]=picker.value.split('-').map(Number),x=new Date(y,m-1,d);view=new Date(y,m-1,1);show(x)};
